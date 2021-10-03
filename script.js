@@ -65,19 +65,26 @@ const currencies = new Map([
 
 const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 
-const displayMoviments = function (moviments) {
+const displayMoviments = function (moviments, sort = false) {
+
+  const movs = moviments;
+
+  if(sort) {
+    movs.sort((a, b) => a - b);
+  } else {
+    movs.sort((a, b) => b - a);
+  }
+
   containerMovements.innerHTML = "";
 
-  moviments.forEach(function (moviment, index) {
+  movs.forEach(function (moviment, index) {
     const type = moviment > 0 ? "deposit" : "withdrawal";
 
     containerMovements.insertAdjacentHTML(
       "afterbegin",
       `
       <div class="movements__row">
-        <div class="movements__type movements__type--${type}">${
-        index + 1
-      } deposit</div>
+        <div class="movements__type movements__type--${type}">${index + 1} ${type}</div>
         <div class="movements__date">3 days ago</div>
         <div class="movements__value">${moviment}€</div>
       </div>
@@ -101,6 +108,7 @@ const createUsernames = function (accs) {
 
 createUsernames(accounts);
 
+//exibe interface do usuário
 const updateUI = function (currentAcount) {
   //exibe o saldo da conta
   calcDisplayBalance(currentAcount);
@@ -110,6 +118,9 @@ const updateUI = function (currentAcount) {
 
   //exibe totais positivos, negativos e poupança
   calcDisplaySummary(currentAcount);
+
+  //exibe a data local
+  displayCurrentDate();
 };
 
 //exibe saldo
@@ -248,9 +259,22 @@ btnLoan.addEventListener("click", function (e) {
   inputLoanAmount.value = "";
 });
 
-btnSort.addEventListener("click", function () {
-  currentAcount.movements.sort(function (a, b) {
-    return a - b;
-  });
-  updateUI(currentAcount);
+let sorted = false;
+
+btnSort.addEventListener("click", function (e) {
+  e.preventDefault();
+  sorted = !sorted;
+  displayMoviments(currentAcount.movements, sorted);
 });
+
+function displayCurrentDate () {
+  const date = new Date();
+  const dd = date.getDate();
+  const mm = date.getMonth();
+  const yyyy = date.getFullYear();
+  const dateString = `${dd}/${mm}/${yyyy}`;
+  labelDate.textContent = dateString;
+}
+
+
+
